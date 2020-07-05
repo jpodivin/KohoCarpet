@@ -1,7 +1,5 @@
 #Visual studio
-*.sln
 .vs
-*.pyproj
 KohoCarpet/*Env/**
 
 #output folder
