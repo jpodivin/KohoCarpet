@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as pyplot
 from numpy.random import default_rng
+import os
 
 def data_init(map_depth, 
 			  dist_params, 
@@ -57,7 +58,7 @@ def kohonen_rule(weights,
 	return weights
 
 def distance(input_vector, 
-			   weights):	
+			 weights):	
 
 	return -np.sum(np.abs(input_vector - weights))
 
@@ -70,6 +71,12 @@ def print_activations(mesh_coords,
 					  time,
 					  size,
 					  path = './out/activations'):
+
+	if path.split('/')[1] not in os.listdir('.'):
+		os.mkdir(path.split('/')[1])
+
+	if path.split('/')[2] not in os.listdir('./'+path.split('/')[1]):
+		os.mkdir(path)
 
 	figure, axis = pyplot.subplots()
 
@@ -84,6 +91,12 @@ def print_map(weights,
 			  time,
 			  size,
 			  path = './out/clusters'):
+
+	if path.split('/')[1] not in os.listdir('.'):
+		os.mkdir(path.split('/')[1])
+
+	if path.split('/')[2] not in os.listdir('./'+path.split('/')[1]):
+		os.mkdir(path)
 
 	figure, axis = pyplot.subplots()
 
