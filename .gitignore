@@ -1,2 +1,5 @@
-#output folder
+# Python
+*/__pycache__/
+
+# output folder
 KohoCarpet/out/**

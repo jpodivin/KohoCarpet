@@ -8,8 +8,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-numpy = "1.22.0"
-matplotlib = "3.2.2"
+numpy = "^1.22.0"
+matplotlib = "^3.2.2"
 
 
 [build-system]
@@ -17,4 +17,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-kohocarpet = 'koho_carpet.py:main'
+kohocarpet = 'kohocarpet.koho_carpet:main'
