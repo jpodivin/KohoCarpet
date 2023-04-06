@@ -29,8 +29,7 @@ def update_area(time,
 
     if time == 1:
         return max_size
-    else:
-        return int(max_size//np.log(time))
+    return int(max_size//np.log(time))
 
 
 def kohonen_rule(weights,
@@ -89,7 +88,6 @@ def print_activations(mesh_coords,
 def print_map(weights,
             dataset,
             time,
-            size,
             path = './out/clusters'):
 
     if path.split('/')[1] not in os.listdir('.'):
@@ -146,7 +144,7 @@ def main():
         print('\n')
 
         print_activations(mesh_coords, activations, time, size)
-        print_map(weights, dataset, time, size)
+        print_map(weights, dataset, time)
 
 if __name__ == "__main__":
     main()
