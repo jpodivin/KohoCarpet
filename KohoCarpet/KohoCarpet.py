@@ -1,7 +1,7 @@
-import numpy as np
-import matplotlib.pyplot as pyplot
-from numpy.random import default_rng
 import os
+import numpy as np
+from matplotlib import pyplot
+from numpy.random import default_rng
 
 def data_init(map_depth,
           dist_params,
@@ -102,7 +102,7 @@ def print_map(weights,
 
     axis.scatter(weights[:, 0], weights[:, 1])
 
-    axis.scatter(dataset[:, 0], dataset[:, 1], 
+    axis.scatter(dataset[:, 0], dataset[:, 1],
                  color = 'red', marker='x')
 
     figure.savefig(path+ '/snapshot'+str(time) + '.png',
