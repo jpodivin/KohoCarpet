@@ -1,6 +1,2 @@
-#Visual studio
-.vs
-KohoCarpet/*Env/**
-
 #output folder
 KohoCarpet/out/**
