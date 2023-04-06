@@ -127,7 +127,7 @@ def main():
         for example in np.random.default_rng().choice(dataset, 1):
 
             activations = np.fromiter([distance(example, weight)
-                  for weight in weights.reshape(-1, 2)], np.float)
+                  for weight in weights.reshape(-1, 2)], np.float32)
 
             activations = normalize(activations)
             avg_activation = np.average(activations)
