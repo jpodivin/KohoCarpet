@@ -4,5 +4,4 @@ Admittedly naive implementation of [Kohonens self organizing map](https://en.wik
 
 Not fit for any real use, but the plots of the networks activation values have certain aesthetic appeal.
 
-If you wonder why, it's because the map wraps in on itself as torus. This, among other reasons, causes problems with convergence
-of the network nodes. 
+If you wonder why, there are several reasons. Amon them is topology of the map (torus) and that my modification of the algorithm only picks one example per iteration.
