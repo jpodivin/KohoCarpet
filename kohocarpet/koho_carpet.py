@@ -6,7 +6,8 @@ from numpy.random import default_rng
 def data_init(map_depth,
           dist_params,
           class_size = 10):
-
+    """Generate dummy data from normal distribution with given `dist_params`.
+    """
     generator = default_rng()
 
     dataset = np.array([[generator.normal(loc = mean,
@@ -19,17 +20,18 @@ def data_init(map_depth,
 def weights_init(size,
            map_depth,
            dist_sigma = 1.0):
-
+    """Initialize weights randomly with given sigma.
+    """
     generator = default_rng()
     weights = generator.normal(scale = dist_sigma, size = (size, size, map_depth))
     return weights
 
 def update_area(time,
           max_size):
+    """Get size of the updated area based on time.
+    """
 
-    if time == 1:
-        return max_size
-    return int(max_size//np.log(time))
+    return int(max_size-time)
 
 
 def kohonen_rule(weights,
@@ -38,31 +40,28 @@ def kohonen_rule(weights,
            update_scale,
            learning_rate = 0.1):
 
-
+    # Compute two points defining updated aread
     xa, ya = np.subtract(position, update_scale//2)
-    xb, yb = np.add(position, update_scale//2)%weights.shape[0]
+    xb, yb = np.add(position, update_scale//2)
+    # Generate list of updated indices
+    ty = np.arange(np.min((ya,yb)), np.max((ya,yb))) % weights.shape[0]
+    tx = np.arange(np.min((xa,xb)), np.max((xa,xb))) % weights.shape[0]
+    tx, ty = np.meshgrid(tx, ty, indexing='ij')
 
-    if xa > xb:
-        xb *= -1
-    if ya > yb:
-        yb *= -1
-
-    ty = np.arange(np.min((ya,yb)), np.max((ya,yb)))
-    tx = np.arange(np.min((xa,xb)), np.max((xa,xb)))
-
-    for i in ty:
-        for j in tx:
-            weights[i,j,:] += learning_rate * np.subtract(input_vector, weights[i,j,:])
+    # Update all weights
+    weights[tx, ty, :] += learning_rate * (input_vector - weights[tx, ty, :])
 
     return weights
 
 def distance(input_vector,
          weights):
-
-    return -np.sum(np.abs(input_vector - weights))
+    """Simple euclidean norm
+    """
+    return np.sqrt(np.sum(np.square(input_vector - weights)))
 
 def normalize(array):
-
+    """Min-max normalization
+    """
     return (array - np.min(array))/(np.max(array)-np.min(array))
 
 def print_activations(mesh_coords,
@@ -116,29 +115,27 @@ def main():
 
     weights = normalize(weights_init(size, map_depth))
 
-    activations = np.zeros((size, size))
     mesh_coords = np.meshgrid([i for i in range(0,size)], [i for i in range(0,size)])
 
     print('*'*80)
     print('\n')
 
     for time in range(1, size):
-        new_weights = weights
         for example in np.random.default_rng().choice(dataset, 1):
 
-            activations = np.fromiter([distance(example, weight)
-                  for weight in weights.reshape(-1, 2)], np.float32)
+            activations = np.fromiter([distance(example, weights[i][j])
+                  for i in range(size) for j in range(size)], np.float32)
 
             activations = normalize(activations)
             avg_activation = np.average(activations)
 
-            new_weights = kohonen_rule(weights,
-                  example,
-                  (np.argmax(activations)//size, np.argmax(activations)%size),
-                  update_area(time, weights.shape[0]),
-                  0.1)
+            new_weights = kohonen_rule(weights=weights,
+                  input_vector=example,
+                  position=(np.argmin(activations)//size, np.argmin(activations)%size),
+                  update_scale=update_area(time, weights.shape[0]),
+                  learning_rate = (size - time)/size)
 
-        weights = new_weights
+        weights = new_weights.copy()
 
         print(avg_activation)
         print('\n')
