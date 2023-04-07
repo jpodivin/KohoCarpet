@@ -1,7 +1,9 @@
 import os
+import glob
 import numpy as np
 from matplotlib import pyplot
 from numpy.random import default_rng
+from PIL import Image
 
 def data_init(map_depth,
           dist_params,
@@ -65,22 +67,20 @@ def normalize(array):
     return (array - np.min(array))/(np.max(array)-np.min(array))
 
 def print_activations(mesh_coords,
-              activations,
-              time,
-              size,
-              path = './out/activations'):
+                    activations,
+                    time,
+                    size,
+                    path = './out/activations'):
 
-    if path.split('/')[1] not in os.listdir('.'):
-        os.mkdir(path.split('/')[1])
-
-    if path.split('/')[2] not in os.listdir('./'+path.split('/')[1]):
-        os.mkdir(path)
+    if not os.path.exists(path):
+        os.makedirs(path)
 
     figure, axis = pyplot.subplots()
 
     mesh = axis.pcolormesh(mesh_coords[0], mesh_coords[1], activations.reshape((size, size)))
     figure.colorbar(mesh)
-    figure.savefig(path + '/snapshot' + str(time) + '.png', format='png')
+    figure.savefig(os.path.join(path, f'snapshot_{str(time)}.png'),
+                   format='png')
 
     pyplot.close(figure)
 
@@ -89,11 +89,8 @@ def print_map(weights,
             time,
             path = './out/clusters'):
 
-    if path.split('/')[1] not in os.listdir('.'):
-        os.mkdir(path.split('/')[1])
-
-    if path.split('/')[2] not in os.listdir('./'+path.split('/')[1]):
-        os.mkdir(path)
+    if not os.path.exists(path):
+        os.makedirs(path)
 
     figure, axis = pyplot.subplots()
 
@@ -101,11 +98,38 @@ def print_map(weights,
 
     axis.scatter(dataset[:, 0], dataset[:, 1],
                  color = 'red', marker='x')
-
-    figure.savefig(path+ '/snapshot'+str(time) + '.png',
+    figure.savefig(os.path.join(path, f'snapshot_{str(time)}.png'),
                    format='png')
 
     pyplot.close(figure)
+
+def save_gifs(weight_map_path, activations_path, gif_path='./out/gifs'):
+
+    if not os.path.exists(gif_path):
+        os.makedirs(gif_path)
+
+    def _sort_func(val):
+        val = os.path.basename(val).split('_')[1]
+        val = val.split('.')[0]
+        return int(val)
+
+    weights = [
+        Image.open(im) for im in sorted(glob.glob(activations_path + "/*.png"), key=_sort_func)]
+    activations = [
+        Image.open(im) for im in sorted(glob.glob(weight_map_path + "/*.png"), key=_sort_func)]
+
+    weights[0].save(
+        os.path.join(gif_path, 'weights.gif'),
+        append_images=weights[1:],
+        save_all=True,
+        loop=0,
+        duration=500)
+    activations[0].save(
+        os.path.join(gif_path, 'activations.gif'),
+        append_images=activations[1:],
+        save_all=True,
+        loop=0,
+        duration=500)
 
 def main():
     size = 100
@@ -116,7 +140,6 @@ def main():
     weights = normalize(weights_init(size, map_depth))
 
     mesh_coords = np.meshgrid([i for i in range(0,size)], [i for i in range(0,size)])
-
     print('*'*80)
     print('\n')
 
@@ -142,6 +165,8 @@ def main():
 
         print_activations(mesh_coords, activations, time, size)
         print_map(weights, dataset, time)
+    save_gifs(weight_map_path='./out/clusters', activations_path='./out/activations')
+
 
 if __name__ == "__main__":
     main()
